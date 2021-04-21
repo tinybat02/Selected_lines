@@ -1,0 +1,21 @@
+{
+  "type": "panel",
+  "name": "Selected Lines",
+  "id": "display-selected-lines",
+  "dataFormats": ["table"],
+  "info": {
+    "description": "Display selected lines",
+    "author": {
+      "name": "Nam Le"
+    },
+    "keywords": ["openlayers", "map"],
+    "screenshots": [],
+    "version": "0.0.1",
+    "updated": "%TODAY%"
+  },
+
+  "dependencies": {
+    "grafanaVersion": "6.3.x",
+    "plugins": []
+  }
+}
