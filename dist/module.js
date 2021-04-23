@@ -88546,12 +88546,12 @@ function (_super) {
 
     if (prevProps.options.showLastPoint !== this.props.options.showLastPoint && this.props.options.showLastPoint) {
       this.map.removeLayer(this.lineLayer);
-      this.map.addLayer(this.pointLayer);
+      this.pointLayer && this.map.addLayer(this.pointLayer);
     }
 
     if (prevProps.options.showLastLine !== this.props.options.showLastLine && this.props.options.showLastLine) {
       this.map.removeLayer(this.pointLayer);
-      this.map.addLayer(this.lineLayer);
+      this.lineLayer && this.map.addLayer(this.lineLayer);
     }
 
     if (prevProps.options.tile_url !== this.props.options.tile_url) {
