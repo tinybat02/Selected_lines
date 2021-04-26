@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { FormField, PanelOptionsGroup } from '@grafana/ui';
 import { PanelEditorProps } from '@grafana/data';
 
-import { MapOptions } from '../types';
+import { MapOptions } from './types';
 
 export const PanelEditor: React.FC<PanelEditorProps<MapOptions>> = ({ options, onOptionsChange }) => {
   const [inputs, setInputs] = useState(options);
@@ -18,36 +18,6 @@ export const PanelEditor: React.FC<PanelEditorProps<MapOptions>> = ({ options, o
 
   const handleSubmit = () => {
     onOptionsChange(inputs);
-  };
-
-  const enableLastPoint = () => {
-    if (options.showLastPoint) {
-      onOptionsChange({
-        ...options,
-        showLastPoint: false,
-      });
-    } else {
-      onOptionsChange({
-        ...options,
-        showLastPoint: true,
-        showLastLine: false,
-      });
-    }
-  };
-
-  const enableLastLine = () => {
-    if (options.showLastLine) {
-      onOptionsChange({
-        ...options,
-        showLastLine: false,
-      });
-    } else {
-      onOptionsChange({
-        ...options,
-        showLastLine: true,
-        showLastPoint: false,
-      });
-    }
   };
 
   return (
@@ -91,20 +61,24 @@ export const PanelEditor: React.FC<PanelEditorProps<MapOptions>> = ({ options, o
             value={inputs.zoom_level}
             onChange={handleChange}
           />
-          <div className="gf-form">
-            <label className="gf-form-label width-10">Last Point</label>
-            <div className="gf-form-switch" onClick={enableLastPoint}>
-              <input type="checkbox" checked={options.showLastPoint} />
-              <span className="gf-form-switch__slider"></span>
-            </div>
-          </div>
-          <div className="gf-form">
-            <label className="gf-form-label width-10">Last Line</label>
-            <div className="gf-form-switch" onClick={enableLastLine}>
-              <input type="checkbox" checked={options.showLastLine} />
-              <span className="gf-form-switch__slider"></span>
-            </div>
-          </div>
+          <FormField
+            label="Timezone"
+            labelWidth={10}
+            inputWidth={40}
+            type="string"
+            name="timezone"
+            value={inputs.timezone}
+            onChange={handleChange}
+          />
+          <FormField
+            label="Time Bound"
+            labelWidth={10}
+            inputWidth={40}
+            type="number"
+            name="timebound"
+            value={inputs.timebound}
+            onChange={handleChange}
+          />
         </div>
       </div>
 

@@ -82,17 +82,22 @@ export const drawFeature = (routeData: Coordinate[], color: string) => {
 };
 
 export const processData = (data: SingleData[]) => {
+  const timeRange = [data.slice(-1)[0].timestamp, data[0].timestamp];
+
   const perDeviceRoute: { [key: string]: [number, number][] } = {};
+  const perDeviceTime: { [key: string]: number[] } = {};
 
   data.map((datum) => {
     if (perDeviceRoute[datum.hash_id]) {
       perDeviceRoute[datum.hash_id].push([datum.longitude, datum.latitude]);
+      perDeviceTime[datum.hash_id].push(datum.timestamp);
     } else {
       perDeviceRoute[datum.hash_id] = [[datum.longitude, datum.latitude]];
+      perDeviceTime[datum.hash_id] = [datum.timestamp];
     }
   });
 
-  return perDeviceRoute;
+  return { perDeviceRoute, perDeviceTime, timeRange };
 };
 
 export const produceLayer = (
@@ -102,20 +107,9 @@ export const produceLayer = (
 ) => {
   const filter_absent_hash = hash_list.filter((hash_id) => perDevice[hash_id]);
 
-  const dataPoints = filter_absent_hash.map((hash_id) => {
+  const dataLines = filter_absent_hash.map((hash_id) => {
     if (!colors[hash_id]) colors[hash_id] = randomColor();
 
-    return createPoint(perDevice[hash_id][0], colors[hash_id]);
-  });
-
-  const pointLayer = new VectorLayer({
-    source: new VectorSource({
-      features: dataPoints,
-    }),
-    zIndex: 2,
-  });
-
-  const dataLines = filter_absent_hash.map((hash_id) => {
     return drawFeature(perDevice[hash_id], colors[hash_id]);
   });
 
@@ -126,5 +120,23 @@ export const produceLayer = (
     zIndex: 2,
   });
 
-  return { pointLayer, lineLayer, newcolors: colors };
+  return { lineLayer, newcolors: colors };
+};
+
+export const produceLayerByTime = (
+  routeData: { [key: string]: [number, number][] },
+  colors: { [key: string]: string }
+) => {
+  const lineFeatures = Object.keys(routeData).map((hash_id) => {
+    if (!colors[hash_id]) colors[hash_id] = randomColor();
+    return drawFeature(routeData[hash_id], colors[hash_id]);
+  });
+  const lineLayer = new VectorLayer({
+    source: new VectorSource({
+      features: lineFeatures,
+    }),
+    zIndex: 2,
+  });
+
+  return { lineLayer, newcolors: colors };
 };

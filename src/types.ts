@@ -3,8 +3,8 @@ export interface MapOptions {
   center_lon: number;
   tile_url: string;
   zoom_level: number;
-  showLastPoint: boolean;
-  showLastLine: boolean;
+  timezone: string;
+  timebound: number;
 }
 
 export const defaults: MapOptions = {
@@ -12,6 +12,6 @@ export const defaults: MapOptions = {
   center_lon: 11.66725,
   tile_url: '',
   zoom_level: 18,
-  showLastPoint: true,
-  showLastLine: false,
+  timezone: 'Europe/Berlin',
+  timebound: 30,
 };
