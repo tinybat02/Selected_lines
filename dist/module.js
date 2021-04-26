@@ -92217,18 +92217,8 @@ function (_super) {
       var _a = _this.state,
           timepoint = _a.timepoint,
           colors = _a.colors;
-      var toDisplay = {};
-      hash_list.map(function (hash) {
-        toDisplay[hash] = [];
-
-        if (_this.perDeviceTime[hash]) {
-          for (var i = 0; i < _this.perDeviceTime[hash].length; i++) {
-            if (_this.perDeviceTime[hash][i] >= timepoint - 30 && _this.perDeviceTime[hash][i] <= timepoint + 30) {
-              toDisplay[hash].push(_this.perDeviceRoute[hash][i]);
-            }
-          }
-        }
-      });
+      var timebound = _this.props.options.timebound;
+      var toDisplay = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["filterByTime"])(_this.perDeviceRoute, _this.perDeviceTime, hash_list, timepoint, timebound);
 
       var _b = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["produceLayerByTime"])(toDisplay, colors),
           lineLayer = _b.lineLayer,
@@ -92316,8 +92306,6 @@ function (_super) {
   };
 
   MainPanel.prototype.componentDidUpdate = function (prevProps, prevState) {
-    var _this = this;
-
     if (prevProps.data.series[0] !== this.props.data.series[0]) {
       this.map.removeLayer(this.lineLayer);
 
@@ -92352,20 +92340,10 @@ function (_super) {
       var _b = this.state,
           hash_list = _b.hash_list,
           colors = _b.colors;
-      var toDisplay_1 = {};
-      hash_list.map(function (hash) {
-        toDisplay_1[hash] = [];
+      var timebound = this.props.options.timebound;
+      var toDisplay = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["filterByTime"])(this.perDeviceRoute, this.perDeviceTime, hash_list, timeRange_1[0], timebound);
 
-        if (_this.perDeviceTime[hash]) {
-          for (var i = 0; i < _this.perDeviceTime[hash].length; i++) {
-            if (_this.perDeviceTime[hash][i] >= timeRange_1[0] - 30 && _this.perDeviceTime[hash][i] <= timeRange_1[0] + 30) {
-              toDisplay_1[hash].push(_this.perDeviceRoute[hash][i]);
-            }
-          }
-        }
-      });
-
-      var _c = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["produceLayerByTime"])(toDisplay_1, colors),
+      var _c = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["produceLayerByTime"])(toDisplay, colors),
           lineLayer = _c.lineLayer,
           newcolors = _c.newcolors;
 
@@ -92380,23 +92358,13 @@ function (_super) {
       this.map.removeLayer(this.lineLayer);
       var _d = this.state,
           hash_list = _d.hash_list,
-          timepoint_1 = _d.timepoint,
+          timepoint = _d.timepoint,
           colors = _d.colors;
+      var timebound = this.props.options.timebound;
       if (hash_list.length == 0) return;
-      var toDisplay_2 = {};
-      hash_list.map(function (hash) {
-        toDisplay_2[hash] = [];
+      var toDisplay = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["filterByTime"])(this.perDeviceRoute, this.perDeviceTime, hash_list, timepoint, timebound);
 
-        if (_this.perDeviceTime[hash]) {
-          for (var i = 0; i < _this.perDeviceTime[hash].length; i++) {
-            if (_this.perDeviceTime[hash][i] >= timepoint_1 - 30 && _this.perDeviceTime[hash][i] <= timepoint_1 + 30) {
-              toDisplay_2[hash].push(_this.perDeviceRoute[hash][i]);
-            }
-          }
-        }
-      });
-
-      var _e = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["produceLayerByTime"])(toDisplay_2, colors),
+      var _e = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["produceLayerByTime"])(toDisplay, colors),
           lineLayer = _e.lineLayer,
           newcolors = _e.newcolors;
 
@@ -92431,7 +92399,8 @@ function (_super) {
   MainPanel.prototype.render = function () {
     var _a = this.state,
         all_hashs = _a.all_hashs,
-        domain = _a.domain;
+        domain = _a.domain,
+        timepoint = _a.timepoint;
     return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
       style: {
         display: 'flex',
@@ -92446,7 +92415,11 @@ function (_super) {
         };
       }),
       onChange: this.handleChange
-    }), domain.length > 0 && react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_components_CustomSlider__WEBPACK_IMPORTED_MODULE_10__["CustomSlider"], {
+    }), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("span", {
+      style: {
+        margin: 10
+      }
+    }, timepoint), domain.length > 0 && react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(_components_CustomSlider__WEBPACK_IMPORTED_MODULE_10__["CustomSlider"], {
       domain: domain,
       defaultValues: domain.slice(0, 1),
       mode: 1,
@@ -93156,7 +93129,7 @@ var toLocalTime = function toLocalTime(epoch, timezone) {
 /*!**************************!*\
   !*** ./utils/helpers.ts ***!
   \**************************/
-/*! exports provided: createPoint, drawFeature, processData, produceLayer, produceLayerByTime */
+/*! exports provided: createPoint, drawFeature, processData, produceLayer, produceLayerByTime, filterByTime */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -93166,6 +93139,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "processData", function() { return processData; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "produceLayer", function() { return produceLayer; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "produceLayerByTime", function() { return produceLayerByTime; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "filterByTime", function() { return filterByTime; });
 /* harmony import */ var ol_Feature__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ol/Feature */ "../node_modules/ol/Feature.js");
 /* harmony import */ var ol_geom_Point__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ol/geom/Point */ "../node_modules/ol/geom/Point.js");
 /* harmony import */ var ol_source_Vector__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ol/source/Vector */ "../node_modules/ol/source/Vector.js");
@@ -93294,6 +93268,21 @@ var produceLayerByTime = function produceLayerByTime(routeData, colors) {
     lineLayer: lineLayer,
     newcolors: colors
   };
+};
+var filterByTime = function filterByTime(routeData, routeTime, hash_list, timepoint, timebound) {
+  var toDisplay = {};
+  hash_list.map(function (hash) {
+    toDisplay[hash] = [];
+
+    if (routeTime[hash]) {
+      for (var i = 0; i < routeTime[hash].length; i++) {
+        if (routeTime[hash][i] >= timepoint - timebound && routeTime[hash][i] <= timepoint + timebound) {
+          toDisplay[hash].push(routeData[hash][i]);
+        }
+      }
+    }
+  });
+  return toDisplay;
 };
 
 /***/ }),

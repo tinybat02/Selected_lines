@@ -140,3 +140,26 @@ export const produceLayerByTime = (
 
   return { lineLayer, newcolors: colors };
 };
+
+export const filterByTime = (
+  routeData: { [key: string]: [number, number][] },
+  routeTime: { [key: string]: number[] },
+  hash_list: string[],
+  timepoint: number,
+  timebound: number
+) => {
+  const toDisplay: { [key: string]: [number, number][] } = {};
+
+  hash_list.map((hash) => {
+    toDisplay[hash] = [];
+    if (routeTime[hash]) {
+      for (let i = 0; i < routeTime[hash].length; i++) {
+        if (routeTime[hash][i] >= timepoint - timebound && routeTime[hash][i] <= timepoint + timebound) {
+          toDisplay[hash].push(routeData[hash][i]);
+        }
+      }
+    }
+  });
+
+  return toDisplay;
+};

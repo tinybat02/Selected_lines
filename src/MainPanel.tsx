@@ -10,7 +10,7 @@ import { platformModifierKeyOnly } from 'ol/events/condition';
 import ReactMultiSelectCheckboxes from 'react-multiselect-checkboxes';
 import nanoid from 'nanoid';
 import { CustomSlider } from './components/CustomSlider';
-import { processData, produceLayerByTime } from './utils/helpers';
+import { processData, produceLayerByTime, filterByTime } from './utils/helpers';
 import { toLocalTime } from './utils/formatTime';
 import 'ol/ol.css';
 import './style/MainPanel.css';
@@ -122,17 +122,9 @@ export class MainPanel extends PureComponent<Props, IState> {
       if (this.state.hash_list.length == 0) return;
 
       const { hash_list, colors } = this.state;
-      const toDisplay: { [key: string]: [number, number][] } = {};
-      hash_list.map((hash) => {
-        toDisplay[hash] = [];
-        if (this.perDeviceTime[hash]) {
-          for (let i = 0; i < this.perDeviceTime[hash].length; i++) {
-            if (this.perDeviceTime[hash][i] >= timeRange[0] - 30 && this.perDeviceTime[hash][i] <= timeRange[0] + 30) {
-              toDisplay[hash].push(this.perDeviceRoute[hash][i]);
-            }
-          }
-        }
-      });
+      const { timebound } = this.props.options;
+
+      const toDisplay = filterByTime(this.perDeviceRoute, this.perDeviceTime, hash_list, timeRange[0], timebound);
 
       const { lineLayer, newcolors } = produceLayerByTime(toDisplay, colors);
 
@@ -145,20 +137,11 @@ export class MainPanel extends PureComponent<Props, IState> {
     if (prevState.timepoint != this.state.timepoint && this.state.timepoint != 0) {
       this.map.removeLayer(this.lineLayer);
       const { hash_list, timepoint, colors } = this.state;
+      const { timebound } = this.props.options;
 
       if (hash_list.length == 0) return;
 
-      const toDisplay: { [key: string]: [number, number][] } = {};
-      hash_list.map((hash) => {
-        toDisplay[hash] = [];
-        if (this.perDeviceTime[hash]) {
-          for (let i = 0; i < this.perDeviceTime[hash].length; i++) {
-            if (this.perDeviceTime[hash][i] >= timepoint - 30 && this.perDeviceTime[hash][i] <= timepoint + 30) {
-              toDisplay[hash].push(this.perDeviceRoute[hash][i]);
-            }
-          }
-        }
-      });
+      const toDisplay = filterByTime(this.perDeviceRoute, this.perDeviceTime, hash_list, timepoint, timebound);
 
       const { lineLayer, newcolors } = produceLayerByTime(toDisplay, colors);
 
@@ -200,18 +183,9 @@ export class MainPanel extends PureComponent<Props, IState> {
     const hash_list = selectOption.map((item) => item.value);
 
     const { timepoint, colors } = this.state;
+    const { timebound } = this.props.options;
 
-    const toDisplay: { [key: string]: [number, number][] } = {};
-    hash_list.map((hash) => {
-      toDisplay[hash] = [];
-      if (this.perDeviceTime[hash]) {
-        for (let i = 0; i < this.perDeviceTime[hash].length; i++) {
-          if (this.perDeviceTime[hash][i] >= timepoint - 30 && this.perDeviceTime[hash][i] <= timepoint + 30) {
-            toDisplay[hash].push(this.perDeviceRoute[hash][i]);
-          }
-        }
-      }
-    });
+    const toDisplay = filterByTime(this.perDeviceRoute, this.perDeviceTime, hash_list, timepoint, timebound);
 
     const { lineLayer, newcolors } = produceLayerByTime(toDisplay, colors);
 
@@ -227,7 +201,7 @@ export class MainPanel extends PureComponent<Props, IState> {
   };
 
   render() {
-    const { all_hashs, domain } = this.state;
+    const { all_hashs, domain, timepoint } = this.state;
 
     return (
       <>
@@ -236,6 +210,7 @@ export class MainPanel extends PureComponent<Props, IState> {
             options={all_hashs.map((hash_id) => ({ label: hash_id, value: hash_id }))}
             onChange={this.handleChange}
           />
+          <span style={{ margin: 10 }}>{timepoint}</span>
           {domain.length > 0 && (
             <CustomSlider
               domain={domain}
