@@ -92401,6 +92401,7 @@ function (_super) {
         all_hashs = _a.all_hashs,
         domain = _a.domain,
         timepoint = _a.timepoint;
+    var timezone = this.props.options.timezone;
     return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
       style: {
         display: 'flex',
@@ -92428,7 +92429,7 @@ function (_super) {
       trackLeft: true,
       defaultTicks: domain,
       format: function format(d) {
-        return Object(_utils_formatTime__WEBPACK_IMPORTED_MODULE_12__["toLocalTime"])(d);
+        return Object(_utils_formatTime__WEBPACK_IMPORTED_MODULE_12__["toLocalTime"])(d, timezone);
       },
       setValue: this.onSlide
     })), react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {

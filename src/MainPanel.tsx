@@ -202,6 +202,7 @@ export class MainPanel extends PureComponent<Props, IState> {
 
   render() {
     const { all_hashs, domain, timepoint } = this.state;
+    const { timezone } = this.props.options;
 
     return (
       <>
@@ -220,7 +221,7 @@ export class MainPanel extends PureComponent<Props, IState> {
               trackRight={false}
               trackLeft={true}
               defaultTicks={domain}
-              format={(d) => toLocalTime(d)}
+              format={(d) => toLocalTime(d, timezone)}
               setValue={this.onSlide}
             />
           )}
