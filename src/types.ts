@@ -1,3 +1,25 @@
+import { Coordinate } from 'ol/coordinate';
+
+export interface DevicesLocation {
+  [key: string]: Coordinate;
+}
+
+export interface GeoJSON {
+  features: Array<{
+    type: string;
+    properties: {
+      IP: string;
+      name: string;
+      ref: string;
+      id: string;
+    };
+    geometry: {
+      type: string;
+      coordinates: [number, number];
+    };
+  }>;
+}
+
 export interface MapOptions {
   center_lat: number;
   center_lon: number;
@@ -5,6 +27,7 @@ export interface MapOptions {
   zoom_level: number;
   timezone: string;
   timebound: number;
+  devicesLocation: { [key: string]: Coordinate } | null;
 }
 
 export const defaults: MapOptions = {
@@ -14,4 +37,5 @@ export const defaults: MapOptions = {
   zoom_level: 18,
   timezone: 'Europe/Berlin',
   timebound: 30,
+  devicesLocation: null,
 };

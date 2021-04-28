@@ -16,3 +16,17 @@
   -webkit-appearance: none;
   -moz-appearance: none;
 }
+
+.btn-route {
+  padding: 10px 20px;
+  background-color: #0f0e17;
+  color: #fffffe;
+  margin-left: 10px;
+  border: none;
+  border-radius: 5px;
+}
+
+.btn-route:active {
+  background-color: #0f0e17;
+  transform: translateY(4px);
+}

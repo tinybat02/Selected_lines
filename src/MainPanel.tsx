@@ -10,7 +10,7 @@ import { platformModifierKeyOnly } from 'ol/events/condition';
 import ReactMultiSelectCheckboxes from 'react-multiselect-checkboxes';
 import nanoid from 'nanoid';
 import { CustomSlider } from './components/CustomSlider';
-import { processData, produceLayerByTime, filterByTime } from './utils/helpers';
+import { processData, produceLayerByTime, filterByTime, createObserverCircle } from './utils/helpers';
 import { toLocalTime } from './utils/formatTime';
 import 'ol/ol.css';
 import './style/MainPanel.css';
@@ -26,23 +26,36 @@ interface IState {
   hash_list: string[];
   domain: number[];
   timepoint: number;
+  iter: number;
+  subRoute: { [key: string]: [number, number][] };
+  subUncertainty: { [key: string]: number[] };
+  subObserver: { [key: string]: Array<{ [key: string]: number }> };
 }
+
+const initState = {
+  all_hashs: [],
+  hash_list: [],
+  colors: {},
+  domain: [],
+  timepoint: 0,
+  iter: 0,
+  subRoute: {},
+  subUncertainty: {},
+  subObserver: {},
+};
 
 export class MainPanel extends PureComponent<Props, IState> {
   id = 'id' + nanoid();
   map: Map;
   randomTile: TileLayer;
   lineLayer: VectorLayer;
+  radiusLayer: VectorLayer;
   perDeviceRoute: { [key: string]: [number, number][] } = {};
   perDeviceTime: { [key: string]: number[] } = {};
+  perDeviceUncertainty: { [key: string]: number[] } = {};
+  perDeviceObserver: { [key: string]: Array<{ [key: string]: number }> } = {};
 
-  state: IState = {
-    colors: {},
-    all_hashs: [],
-    hash_list: [],
-    domain: [],
-    timepoint: 0,
-  };
+  state: IState = { ...initState };
 
   componentDidMount() {
     const { tile_url, zoom_level, center_lon, center_lat } = this.props.options;
@@ -84,10 +97,12 @@ export class MainPanel extends PureComponent<Props, IState> {
     if (this.props.data.series.length == 0) return;
 
     const { buffer } = this.props.data.series[0].fields[0].values as Buffer;
-    const { perDeviceRoute, perDeviceTime, timeRange } = processData(buffer);
+    const { perDeviceRoute, perDeviceTime, perDeviceUncertainty, perDeviceObserver, timeRange } = processData(buffer);
 
     this.perDeviceRoute = perDeviceRoute;
     this.perDeviceTime = perDeviceTime;
+    this.perDeviceUncertainty = perDeviceUncertainty;
+    this.perDeviceObserver = perDeviceObserver;
 
     this.setState((prevState) => ({
       ...prevState,
@@ -100,17 +115,20 @@ export class MainPanel extends PureComponent<Props, IState> {
   componentDidUpdate(prevProps: Props, prevState: IState) {
     if (prevProps.data.series[0] !== this.props.data.series[0]) {
       this.map.removeLayer(this.lineLayer);
+      this.map.removeLayer(this.radiusLayer);
 
       if (this.props.data.series.length == 0) {
-        this.setState({ all_hashs: [], hash_list: [], colors: {}, domain: [], timepoint: 0 });
+        this.setState({ ...initState });
         return;
       }
 
       const { buffer } = this.props.data.series[0].fields[0].values as Buffer;
-      const { perDeviceRoute, perDeviceTime, timeRange } = processData(buffer);
+      const { perDeviceRoute, perDeviceTime, perDeviceUncertainty, perDeviceObserver, timeRange } = processData(buffer);
 
       this.perDeviceRoute = perDeviceRoute;
       this.perDeviceTime = perDeviceTime;
+      this.perDeviceUncertainty = perDeviceUncertainty;
+      this.perDeviceObserver = perDeviceObserver;
 
       this.setState((prevState) => ({
         ...prevState,
@@ -124,32 +142,73 @@ export class MainPanel extends PureComponent<Props, IState> {
       const { hash_list, colors } = this.state;
       const { timebound } = this.props.options;
 
-      const toDisplay = filterByTime(this.perDeviceRoute, this.perDeviceTime, hash_list, timeRange[0], timebound);
+      const { subRoute } = filterByTime(
+        this.perDeviceRoute,
+        this.perDeviceTime,
+        this.perDeviceUncertainty,
+        this.perDeviceObserver,
+        hash_list,
+        timeRange[0],
+        timebound
+      );
 
-      const { lineLayer, newcolors } = produceLayerByTime(toDisplay, colors);
+      const { lineLayer, newcolors } = produceLayerByTime(subRoute, colors);
 
       this.lineLayer = lineLayer;
-
       this.map.addLayer(this.lineLayer);
+
       this.setState({ colors: newcolors });
     }
 
     if (prevState.timepoint != this.state.timepoint && this.state.timepoint != 0) {
       this.map.removeLayer(this.lineLayer);
+      this.map.removeLayer(this.radiusLayer);
+
       const { hash_list, timepoint, colors } = this.state;
-      const { timebound } = this.props.options;
+      const { timebound, devicesLocation } = this.props.options;
 
       if (hash_list.length == 0) return;
 
-      const toDisplay = filterByTime(this.perDeviceRoute, this.perDeviceTime, hash_list, timepoint, timebound);
+      const { subRoute, subUncertainty, subObserver } = filterByTime(
+        this.perDeviceRoute,
+        this.perDeviceTime,
+        this.perDeviceUncertainty,
+        this.perDeviceObserver,
+        hash_list,
+        timepoint,
+        timebound
+      );
 
-      const { lineLayer, newcolors } = produceLayerByTime(toDisplay, colors);
+      const { lineLayer, newcolors } = produceLayerByTime(subRoute, colors);
 
       this.lineLayer = lineLayer;
       this.map.addLayer(this.lineLayer);
 
-      this.setState({ colors: newcolors });
+      if (devicesLocation) {
+        this.radiusLayer = createObserverCircle(subRoute, subUncertainty, subObserver, 0, devicesLocation);
+        this.map.addLayer(this.radiusLayer);
+      }
+
+      this.setState((prev) => ({ ...prev, colors: newcolors, iter: 0, subRoute, subUncertainty, subObserver }));
     }
+
+    if (prevState.iter != this.state.iter) {
+      this.map.removeLayer(this.radiusLayer);
+
+      if (!this.props.options.devicesLocation) return;
+
+      const { subRoute, subUncertainty, subObserver, iter } = this.state;
+
+      this.radiusLayer = createObserverCircle(
+        subRoute,
+        subUncertainty,
+        subObserver,
+        iter,
+        this.props.options.devicesLocation
+      );
+      this.map.addLayer(this.radiusLayer);
+    }
+
     if (prevProps.options.tile_url !== this.props.options.tile_url) {
       if (this.randomTile) this.map.removeLayer(this.randomTile);
 
@@ -179,29 +238,62 @@ export class MainPanel extends PureComponent<Props, IState> {
 
   handleChange = (selectOption: Array<{ label: string; value: string }>) => {
     this.map.removeLayer(this.lineLayer);
+    this.map.removeLayer(this.radiusLayer);
 
     const hash_list = selectOption.map((item) => item.value);
 
-    const { timepoint, colors } = this.state;
-    const { timebound } = this.props.options;
+    if (hash_list.length == 0) return;
 
-    const toDisplay = filterByTime(this.perDeviceRoute, this.perDeviceTime, hash_list, timepoint, timebound);
+    const { timepoint, colors, iter } = this.state;
+    const { timebound, devicesLocation } = this.props.options;
 
-    const { lineLayer, newcolors } = produceLayerByTime(toDisplay, colors);
+    const { subRoute, subUncertainty, subObserver } = filterByTime(
+      this.perDeviceRoute,
+      this.perDeviceTime,
+      this.perDeviceUncertainty,
+      this.perDeviceObserver,
+      hash_list,
+      timepoint,
+      timebound
+    );
+
+    const { lineLayer, newcolors } = produceLayerByTime(subRoute, colors);
 
     this.lineLayer = lineLayer;
-
     this.map.addLayer(this.lineLayer);
 
-    this.setState((prevState) => ({ ...prevState, hash_list: hash_list, colors: newcolors }));
+    if (devicesLocation) {
+      this.radiusLayer = createObserverCircle(subRoute, subUncertainty, subObserver, iter, devicesLocation);
+      this.map.addLayer(this.radiusLayer);
+    }
+
+    this.setState((prevState) => ({
+      ...prevState,
+      hash_list: hash_list,
+      colors: newcolors,
+      subRoute,
+      subUncertainty,
+      subObserver,
+    }));
   };
 
   onSlide = (value: number[]) => {
     this.setState({ timepoint: value[0] });
   };
 
+  onIter = (type: string) => () => {
+    const { iter, subRoute } = this.state;
+    if (type == 'prev' && iter > 0) {
+      this.setState({ iter: iter - 1 });
+    }
+
+    if (type == 'next' && iter < (Object.values(subRoute)[0] || []).length - 2) {
+      this.setState({ iter: iter + 1 });
+    }
+  };
+
   render() {
-    const { all_hashs, domain, timepoint } = this.state;
+    const { all_hashs, domain, timepoint, subRoute, iter, hash_list } = this.state;
     const { timezone } = this.props.options;
 
     return (
@@ -224,6 +316,19 @@ export class MainPanel extends PureComponent<Props, IState> {
               format={(d) => toLocalTime(d, timezone)}
               setValue={this.onSlide}
             />
+          )}
+          {hash_list.length > 0 && (
+            <>
+              <div>
+                {iter + 1}/{(Object.values(subRoute)[0] || []).length - 1}
+              </div>
+              <button className="btn-route" onClick={this.onIter('prev')}>
+                Prev
+              </button>
+              <button className="btn-route" onClick={this.onIter('next')}>
+                Next
+              </button>{' '}
+            </>
           )}
         </div>
         <div id={this.id} style={{ width: '100%', height: '90%' }}></div>
