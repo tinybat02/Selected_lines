@@ -194,14 +194,20 @@ export const createObserverCircle = (
   const radiusFeature: Feature[] = [];
   Object.keys(subRoute).map((hash_id) => {
     const point = new Feature(new Circle(fromLonLat(subRoute[hash_id][iter]), subUncertainty[hash_id][iter]));
-
+    const center = new Feature(new Circle(fromLonLat(subRoute[hash_id][iter]), 2));
     point.setStyle(
       new Style({
         stroke: new Stroke({ color: '#FFA040', width: 2 }),
       })
     );
+    center.setStyle(
+      new Style({
+        stroke: new Stroke({ color: '#fff', width: 1 }),
+        fill: new Fill({ color: '#fff' }),
+      })
+    );
 
-    radiusFeature.push(point);
+    radiusFeature.push(point, center);
   });
 
   Object.keys(subObserver).map((hash_id) => {

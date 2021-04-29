@@ -94928,13 +94928,23 @@ var createObserverCircle = function createObserverCircle(subRoute, subUncertaint
   var radiusFeature = [];
   Object.keys(subRoute).map(function (hash_id) {
     var point = new ol_Feature__WEBPACK_IMPORTED_MODULE_0__["default"](new ol_geom_Circle__WEBPACK_IMPORTED_MODULE_5__["default"](Object(ol_proj__WEBPACK_IMPORTED_MODULE_7__["fromLonLat"])(subRoute[hash_id][iter]), subUncertainty[hash_id][iter]));
+    var center = new ol_Feature__WEBPACK_IMPORTED_MODULE_0__["default"](new ol_geom_Circle__WEBPACK_IMPORTED_MODULE_5__["default"](Object(ol_proj__WEBPACK_IMPORTED_MODULE_7__["fromLonLat"])(subRoute[hash_id][iter]), 2));
     point.setStyle(new ol_style__WEBPACK_IMPORTED_MODULE_6__["Style"]({
       stroke: new ol_style__WEBPACK_IMPORTED_MODULE_6__["Stroke"]({
         color: '#FFA040',
         width: 2
       })
     }));
-    radiusFeature.push(point);
+    center.setStyle(new ol_style__WEBPACK_IMPORTED_MODULE_6__["Style"]({
+      stroke: new ol_style__WEBPACK_IMPORTED_MODULE_6__["Stroke"]({
+        color: '#fff',
+        width: 1
+      }),
+      fill: new ol_style__WEBPACK_IMPORTED_MODULE_6__["Fill"]({
+        color: '#fff'
+      })
+    }));
+    radiusFeature.push(point, center);
   });
   Object.keys(subObserver).map(function (hash_id) {
     Object.keys(subObserver[hash_id][iter]).map(function (device_id) {
