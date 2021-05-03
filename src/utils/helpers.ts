@@ -16,6 +16,7 @@ interface SingleData {
   hash_id: string;
   devices: { [key: string]: number };
   uncertainty: number;
+  error: number;
   [key: string]: any;
 }
 
@@ -95,6 +96,7 @@ export const processData = (data: SingleData[]) => {
   const perDeviceTime: { [key: string]: number[] } = {};
   const perDeviceUncertainty: { [key: string]: number[] } = {};
   const perDeviceObserver: { [key: string]: Array<{ [key: string]: number }> } = {};
+  const perDeviceError: { [key: string]: number[] } = {};
 
   data.map((datum) => {
     if (perDeviceRoute[datum.hash_id]) {
@@ -102,15 +104,17 @@ export const processData = (data: SingleData[]) => {
       perDeviceTime[datum.hash_id].push(datum.timestamp);
       perDeviceUncertainty[datum.hash_id].push(datum.uncertainty || 0);
       perDeviceObserver[datum.hash_id].push(datum.devices || {});
+      perDeviceError[datum.hash_idh].push(datum.error || 0);
     } else {
       perDeviceRoute[datum.hash_id] = [[datum.longitude, datum.latitude]];
       perDeviceTime[datum.hash_id] = [datum.timestamp];
       perDeviceUncertainty[datum.hash_id] = [datum.uncertainty || 0];
       perDeviceObserver[datum.hash_id] = [datum.devices || {}];
+      perDeviceError[datum.hash_idh] = [datum.error || 0];
     }
   });
 
-  return { perDeviceRoute, perDeviceTime, perDeviceUncertainty, perDeviceObserver, timeRange };
+  return { perDeviceRoute, perDeviceTime, perDeviceUncertainty, perDeviceObserver, perDeviceError, timeRange };
 };
 
 export const produceLayerByTime = (
@@ -136,6 +140,7 @@ export const filterByTime = (
   routeTime: { [key: string]: number[] },
   routeUncertainty: { [key: string]: number[] },
   routeObserver: { [key: string]: Array<{ [key: string]: number }> },
+  routeError: { [key: string]: number[] },
   hash_list: string[],
   timepoint: number,
   timebound: number
@@ -143,18 +148,21 @@ export const filterByTime = (
   const subRoute: { [key: string]: [number, number][] } = {};
   const subUncertainty: { [key: string]: number[] } = {};
   const subObserver: { [key: string]: Array<{ [key: string]: number }> } = {};
+  const subError: { [key: string]: number[] } = {};
 
   hash_list.map((hash) => {
     if (routeTime[hash]) {
       subRoute[hash] = [];
       subUncertainty[hash] = [];
       subObserver[hash] = [];
+      subError[hash] = [];
 
       for (let i = 0; i < routeTime[hash].length; i++) {
         if (routeTime[hash][i] >= timepoint - timebound && routeTime[hash][i] <= timepoint + timebound) {
           subRoute[hash].push(routeData[hash][i]);
           subUncertainty[hash].push(routeUncertainty[hash][i]);
           subObserver[hash].push(routeObserver[hash][i]);
+          subError[hash].push(routeError[hash][i]);
         }
       }
     }
@@ -170,7 +178,11 @@ export const filterByTime = (
     if (subObserver[k].length == 0) delete subObserver[k];
   });
 
-  return { subRoute, subUncertainty, subObserver };
+  Object.keys(subError).map((k) => {
+    if (subError[k].length == 0) delete subError[k];
+  });
+
+  return { subRoute, subUncertainty, subObserver, subError };
 };
 
 export const parseDeviceLocation = (geojson: GeoJSON) => {
@@ -188,6 +200,7 @@ export const createObserverCircle = (
   subRoute: { [key: string]: [number, number][] },
   subUncertainty: { [key: string]: number[] },
   subObserver: { [key: string]: Array<{ [key: string]: number }> },
+  subError: { [key: string]: number[] },
   iter: number,
   devicesLocation: DevicesLocation
 ) => {
@@ -206,6 +219,7 @@ export const createObserverCircle = (
         fill: new Fill({ color: '#fff' }),
       })
     );
+    center.set('label', `${subError[hash_id][iter].toFixed(3)}`);
 
     radiusFeature.push(point, center);
   });

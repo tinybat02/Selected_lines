@@ -30,6 +30,7 @@ interface IState {
   subRoute: { [key: string]: [number, number][] };
   subUncertainty: { [key: string]: number[] };
   subObserver: { [key: string]: Array<{ [key: string]: number }> };
+  subError: { [key: string]: number[] };
 }
 
 const initState = {
@@ -42,6 +43,7 @@ const initState = {
   subRoute: {},
   subUncertainty: {},
   subObserver: {},
+  subError: {},
 };
 
 export class MainPanel extends PureComponent<Props, IState> {
@@ -54,6 +56,7 @@ export class MainPanel extends PureComponent<Props, IState> {
   perDeviceTime: { [key: string]: number[] } = {};
   perDeviceUncertainty: { [key: string]: number[] } = {};
   perDeviceObserver: { [key: string]: Array<{ [key: string]: number }> } = {};
+  perDeviceError: { [key: string]: number[] } = {};
 
   state: IState = { ...initState };
 
@@ -97,12 +100,20 @@ export class MainPanel extends PureComponent<Props, IState> {
     if (this.props.data.series.length == 0) return;
 
     const { buffer } = this.props.data.series[0].fields[0].values as Buffer;
-    const { perDeviceRoute, perDeviceTime, perDeviceUncertainty, perDeviceObserver, timeRange } = processData(buffer);
+    const {
+      perDeviceRoute,
+      perDeviceTime,
+      perDeviceUncertainty,
+      perDeviceObserver,
+      perDeviceError,
+      timeRange,
+    } = processData(buffer);
 
     this.perDeviceRoute = perDeviceRoute;
     this.perDeviceTime = perDeviceTime;
     this.perDeviceUncertainty = perDeviceUncertainty;
     this.perDeviceObserver = perDeviceObserver;
+    this.perDeviceError = perDeviceError;
 
     this.setState((prevState) => ({
       ...prevState,
@@ -123,12 +134,20 @@ export class MainPanel extends PureComponent<Props, IState> {
       }
 
       const { buffer } = this.props.data.series[0].fields[0].values as Buffer;
-      const { perDeviceRoute, perDeviceTime, perDeviceUncertainty, perDeviceObserver, timeRange } = processData(buffer);
+      const {
+        perDeviceRoute,
+        perDeviceTime,
+        perDeviceUncertainty,
+        perDeviceObserver,
+        perDeviceError,
+        timeRange,
+      } = processData(buffer);
 
       this.perDeviceRoute = perDeviceRoute;
       this.perDeviceTime = perDeviceTime;
       this.perDeviceUncertainty = perDeviceUncertainty;
       this.perDeviceObserver = perDeviceObserver;
+      this.perDeviceError = perDeviceError;
 
       this.setState((prevState) => ({
         ...prevState,
@@ -147,6 +166,7 @@ export class MainPanel extends PureComponent<Props, IState> {
         this.perDeviceTime,
         this.perDeviceUncertainty,
         this.perDeviceObserver,
+        this.perDeviceError,
         hash_list,
         timeRange[0],
         timebound
@@ -169,11 +189,12 @@ export class MainPanel extends PureComponent<Props, IState> {
 
       if (hash_list.length == 0) return;
 
-      const { subRoute, subUncertainty, subObserver } = filterByTime(
+      const { subRoute, subUncertainty, subObserver, subError } = filterByTime(
         this.perDeviceRoute,
         this.perDeviceTime,
         this.perDeviceUncertainty,
         this.perDeviceObserver,
+        this.perDeviceError,
         hash_list,
         timepoint,
         timebound
@@ -185,11 +206,19 @@ export class MainPanel extends PureComponent<Props, IState> {
       // this.map.addLayer(this.lineLayer);
 
       if (devicesLocation) {
-        this.radiusLayer = createObserverCircle(subRoute, subUncertainty, subObserver, 0, devicesLocation);
+        this.radiusLayer = createObserverCircle(subRoute, subUncertainty, subObserver, subError, 0, devicesLocation);
         this.map.addLayer(this.radiusLayer);
       }
 
-      this.setState((prev) => ({ ...prev, colors: newcolors, iter: 0, subRoute, subUncertainty, subObserver }));
+      this.setState((prev) => ({
+        ...prev,
+        colors: newcolors,
+        iter: 0,
+        subRoute,
+        subUncertainty,
+        subObserver,
+        subError,
+      }));
     }
 
     if (prevState.iter != this.state.iter) {
@@ -197,12 +226,13 @@ export class MainPanel extends PureComponent<Props, IState> {
 
       if (!this.props.options.devicesLocation) return;
 
-      const { subRoute, subUncertainty, subObserver, iter } = this.state;
+      const { subRoute, subUncertainty, subObserver, subError, iter } = this.state;
 
       this.radiusLayer = createObserverCircle(
         subRoute,
         subUncertainty,
         subObserver,
+        subError,
         iter,
         this.props.options.devicesLocation
       );
@@ -247,11 +277,12 @@ export class MainPanel extends PureComponent<Props, IState> {
     const { timepoint, colors, iter } = this.state;
     const { timebound, devicesLocation } = this.props.options;
 
-    const { subRoute, subUncertainty, subObserver } = filterByTime(
+    const { subRoute, subUncertainty, subObserver, subError } = filterByTime(
       this.perDeviceRoute,
       this.perDeviceTime,
       this.perDeviceUncertainty,
       this.perDeviceObserver,
+      this.perDeviceError,
       hash_list,
       timepoint,
       timebound
@@ -263,7 +294,7 @@ export class MainPanel extends PureComponent<Props, IState> {
     // this.map.addLayer(this.lineLayer);
 
     if (devicesLocation) {
-      this.radiusLayer = createObserverCircle(subRoute, subUncertainty, subObserver, iter, devicesLocation);
+      this.radiusLayer = createObserverCircle(subRoute, subUncertainty, subObserver, subError, iter, devicesLocation);
       this.map.addLayer(this.radiusLayer);
     }
 
@@ -274,6 +305,7 @@ export class MainPanel extends PureComponent<Props, IState> {
       subRoute,
       subUncertainty,
       subObserver,
+      subError,
     }));
   };
 
