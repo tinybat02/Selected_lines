@@ -93604,13 +93604,10 @@ function (_super) {
           subUncertainty = _c.subUncertainty,
           subObserver = _c.subObserver;
 
-      var _d = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["produceLayerByTime"])(subRoute, colors),
-          lineLayer = _d.lineLayer,
-          newcolors = _d.newcolors;
-
-      _this.lineLayer = lineLayer;
-
-      _this.map.addLayer(_this.lineLayer);
+      var
+      /* lineLayer, */
+      newcolors = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["produceLayerByTime"])(subRoute, colors).newcolors; // this.lineLayer = lineLayer;
+      // this.map.addLayer(this.lineLayer);
 
       if (devicesLocation) {
         _this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute, subUncertainty, subObserver, iter, devicesLocation);
@@ -93758,13 +93755,11 @@ function (_super) {
           colors = _b.colors;
       var timebound = this.props.options.timebound;
       var subRoute = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["filterByTime"])(this.perDeviceRoute, this.perDeviceTime, this.perDeviceUncertainty, this.perDeviceObserver, hash_list, timeRange_1[0], timebound).subRoute;
+      var
+      /* lineLayer, */
+      newcolors = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["produceLayerByTime"])(subRoute, colors).newcolors; // this.lineLayer = lineLayer;
+      // this.map.addLayer(this.lineLayer);
 
-      var _c = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["produceLayerByTime"])(subRoute, colors),
-          lineLayer = _c.lineLayer,
-          newcolors = _c.newcolors;
-
-      this.lineLayer = lineLayer;
-      this.map.addLayer(this.lineLayer);
       this.setState({
         colors: newcolors
       });
@@ -93773,26 +93768,24 @@ function (_super) {
     if (prevState.timepoint != this.state.timepoint && this.state.timepoint != 0) {
       this.map.removeLayer(this.lineLayer);
       this.map.removeLayer(this.radiusLayer);
-      var _d = this.state,
-          hash_list = _d.hash_list,
-          timepoint = _d.timepoint,
-          colors = _d.colors;
-      var _e = this.props.options,
-          timebound = _e.timebound,
-          devicesLocation = _e.devicesLocation;
+      var _c = this.state,
+          hash_list = _c.hash_list,
+          timepoint = _c.timepoint,
+          colors = _c.colors;
+      var _d = this.props.options,
+          timebound = _d.timebound,
+          devicesLocation = _d.devicesLocation;
       if (hash_list.length == 0) return;
 
-      var _f = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["filterByTime"])(this.perDeviceRoute, this.perDeviceTime, this.perDeviceUncertainty, this.perDeviceObserver, hash_list, timepoint, timebound),
-          subRoute_1 = _f.subRoute,
-          subUncertainty_1 = _f.subUncertainty,
-          subObserver_1 = _f.subObserver;
+      var _e = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["filterByTime"])(this.perDeviceRoute, this.perDeviceTime, this.perDeviceUncertainty, this.perDeviceObserver, hash_list, timepoint, timebound),
+          subRoute_1 = _e.subRoute,
+          subUncertainty_1 = _e.subUncertainty,
+          subObserver_1 = _e.subObserver;
 
-      var _g = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["produceLayerByTime"])(subRoute_1, colors),
-          lineLayer = _g.lineLayer,
-          newcolors_1 = _g.newcolors;
-
-      this.lineLayer = lineLayer;
-      this.map.addLayer(this.lineLayer);
+      var
+      /* lineLayer, */
+      newcolors_1 = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["produceLayerByTime"])(subRoute_1, colors).newcolors; // this.lineLayer = lineLayer;
+      // this.map.addLayer(this.lineLayer);
 
       if (devicesLocation) {
         this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute_1, subUncertainty_1, subObserver_1, 0, devicesLocation);
@@ -93813,11 +93806,11 @@ function (_super) {
     if (prevState.iter != this.state.iter) {
       this.map.removeLayer(this.radiusLayer);
       if (!this.props.options.devicesLocation) return;
-      var _h = this.state,
-          subRoute = _h.subRoute,
-          subUncertainty = _h.subUncertainty,
-          subObserver = _h.subObserver,
-          iter = _h.iter;
+      var _f = this.state,
+          subRoute = _f.subRoute,
+          subUncertainty = _f.subUncertainty,
+          subObserver = _f.subObserver,
+          iter = _f.iter;
       this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute, subUncertainty, subObserver, iter, this.props.options.devicesLocation);
       this.map.addLayer(this.radiusLayer);
     }

@@ -152,10 +152,10 @@ export class MainPanel extends PureComponent<Props, IState> {
         timebound
       );
 
-      const { lineLayer, newcolors } = produceLayerByTime(subRoute, colors);
+      const { /* lineLayer, */ newcolors } = produceLayerByTime(subRoute, colors);
 
-      this.lineLayer = lineLayer;
-      this.map.addLayer(this.lineLayer);
+      // this.lineLayer = lineLayer;
+      // this.map.addLayer(this.lineLayer);
 
       this.setState({ colors: newcolors });
     }
@@ -179,10 +179,10 @@ export class MainPanel extends PureComponent<Props, IState> {
         timebound
       );
 
-      const { lineLayer, newcolors } = produceLayerByTime(subRoute, colors);
+      const { /* lineLayer, */ newcolors } = produceLayerByTime(subRoute, colors);
 
-      this.lineLayer = lineLayer;
-      this.map.addLayer(this.lineLayer);
+      // this.lineLayer = lineLayer;
+      // this.map.addLayer(this.lineLayer);
 
       if (devicesLocation) {
         this.radiusLayer = createObserverCircle(subRoute, subUncertainty, subObserver, 0, devicesLocation);
@@ -257,10 +257,10 @@ export class MainPanel extends PureComponent<Props, IState> {
       timebound
     );
 
-    const { lineLayer, newcolors } = produceLayerByTime(subRoute, colors);
+    const { /* lineLayer, */ newcolors } = produceLayerByTime(subRoute, colors);
 
-    this.lineLayer = lineLayer;
-    this.map.addLayer(this.lineLayer);
+    // this.lineLayer = lineLayer;
+    // this.map.addLayer(this.lineLayer);
 
     if (devicesLocation) {
       this.radiusLayer = createObserverCircle(subRoute, subUncertainty, subObserver, iter, devicesLocation);
