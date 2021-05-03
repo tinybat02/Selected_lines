@@ -93565,7 +93565,8 @@ var initState = {
   subRoute: {},
   subUncertainty: {},
   subObserver: {},
-  subError: {}
+  subError: {},
+  subTime: {}
 };
 
 var MainPanel =
@@ -93605,7 +93606,8 @@ function (_super) {
           subRoute = _c.subRoute,
           subUncertainty = _c.subUncertainty,
           subObserver = _c.subObserver,
-          subError = _c.subError;
+          subError = _c.subError,
+          subTime = _c.subTime;
 
       var
       /* lineLayer, */
@@ -93613,7 +93615,7 @@ function (_super) {
       // this.map.addLayer(this.lineLayer);
 
       if (devicesLocation) {
-        _this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute, subUncertainty, subObserver, subError, iter, devicesLocation, newcolors);
+        _this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute, subUncertainty, subObserver, subError, subTime, iter, devicesLocation, newcolors);
 
         _this.map.addLayer(_this.radiusLayer);
       }
@@ -93625,7 +93627,8 @@ function (_super) {
           subRoute: subRoute,
           subUncertainty: subUncertainty,
           subObserver: subObserver,
-          subError: subError
+          subError: subError,
+          subTime: subTime
         });
       });
     };
@@ -93793,7 +93796,8 @@ function (_super) {
           subRoute_1 = _e.subRoute,
           subUncertainty_1 = _e.subUncertainty,
           subObserver_1 = _e.subObserver,
-          subError_1 = _e.subError;
+          subError_1 = _e.subError,
+          subTime_1 = _e.subTime;
 
       var
       /* lineLayer, */
@@ -93801,7 +93805,7 @@ function (_super) {
       // this.map.addLayer(this.lineLayer);
 
       if (devicesLocation) {
-        this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute_1, subUncertainty_1, subObserver_1, subError_1, 0, devicesLocation, newcolors_1);
+        this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute_1, subUncertainty_1, subObserver_1, subError_1, subTime_1, 0, devicesLocation, newcolors_1);
         this.map.addLayer(this.radiusLayer);
       }
 
@@ -93812,7 +93816,8 @@ function (_super) {
           subRoute: subRoute_1,
           subUncertainty: subUncertainty_1,
           subObserver: subObserver_1,
-          subError: subError_1
+          subError: subError_1,
+          subTime: subTime_1
         });
       });
     }
@@ -93826,8 +93831,9 @@ function (_super) {
           subObserver = _f.subObserver,
           subError = _f.subError,
           iter = _f.iter,
-          colors = _f.colors;
-      this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute, subUncertainty, subObserver, subError, iter, this.props.options.devicesLocation, colors);
+          colors = _f.colors,
+          subTime = _f.subTime;
+      this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute, subUncertainty, subObserver, subError, subTime, iter, this.props.options.devicesLocation, colors);
       this.map.addLayer(this.radiusLayer);
     }
 
@@ -94901,12 +94907,14 @@ var filterByTime = function filterByTime(routeData, routeTime, routeUncertainty,
   var subUncertainty = {};
   var subObserver = {};
   var subError = {};
+  var subTime = {};
   hash_list.map(function (hash) {
     if (routeTime[hash]) {
       subRoute[hash] = [];
       subUncertainty[hash] = [];
       subObserver[hash] = [];
       subError[hash] = [];
+      subTime[hash] = [];
 
       for (var i = 0; i < routeTime[hash].length; i++) {
         if (routeTime[hash][i] >= timepoint - timebound && routeTime[hash][i] <= timepoint + timebound) {
@@ -94914,6 +94922,7 @@ var filterByTime = function filterByTime(routeData, routeTime, routeUncertainty,
           subUncertainty[hash].push(routeUncertainty[hash][i]);
           subObserver[hash].push(routeObserver[hash][i]);
           subError[hash].push(routeError[hash][i]);
+          subTime[hash].push(routeTime[hash][i]);
         }
       }
     }
@@ -94930,11 +94939,15 @@ var filterByTime = function filterByTime(routeData, routeTime, routeUncertainty,
   Object.keys(subError).map(function (k) {
     if (subError[k].length == 0) delete subError[k];
   });
+  Object.keys(subTime).map(function (k) {
+    if (subTime[k].length == 0) delete subTime[k];
+  });
   return {
     subRoute: subRoute,
     subUncertainty: subUncertainty,
     subObserver: subObserver,
-    subError: subError
+    subError: subError,
+    subTime: subTime
   };
 };
 var parseDeviceLocation = function parseDeviceLocation(geojson) {
@@ -94944,7 +94957,7 @@ var parseDeviceLocation = function parseDeviceLocation(geojson) {
   });
   return devicesLocation;
 };
-var createObserverCircle = function createObserverCircle(subRoute, subUncertainty, subObserver, subError, iter, devicesLocation, colors) {
+var createObserverCircle = function createObserverCircle(subRoute, subUncertainty, subObserver, subError, subTime, iter, devicesLocation, colors) {
   var radiusFeature = [];
   Object.keys(subRoute).map(function (hash_id) {
     if (iter > 0) {
@@ -94956,6 +94969,15 @@ var createObserverCircle = function createObserverCircle(subRoute, subUncertaint
         stroke: new ol_style__WEBPACK_IMPORTED_MODULE_6__["Stroke"]({
           color: colors[hash_id],
           width: 2
+        }),
+        text: new ol_style__WEBPACK_IMPORTED_MODULE_6__["Text"]({
+          stroke: new ol_style__WEBPACK_IMPORTED_MODULE_6__["Stroke"]({
+            color: '#004966',
+            width: 1
+          }),
+          font: '10px/1 sans-serif',
+          text: subTime[hash_id][iter] - subTime[hash_id][iter - 1] + " (s)",
+          offsetX: 30
         })
       }), new ol_style__WEBPACK_IMPORTED_MODULE_6__["Style"]({
         geometry: new ol_geom_Point__WEBPACK_IMPORTED_MODULE_1__["default"](subRoute[hash_id][iter]).transform('EPSG:4326', 'EPSG:3857'),

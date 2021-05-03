@@ -31,6 +31,7 @@ interface IState {
   subUncertainty: { [key: string]: number[] };
   subObserver: { [key: string]: Array<{ [key: string]: number }> };
   subError: { [key: string]: number[] };
+  subTime: { [key: string]: number[] };
 }
 
 const initState = {
@@ -44,6 +45,7 @@ const initState = {
   subUncertainty: {},
   subObserver: {},
   subError: {},
+  subTime: {},
 };
 
 export class MainPanel extends PureComponent<Props, IState> {
@@ -189,7 +191,7 @@ export class MainPanel extends PureComponent<Props, IState> {
 
       if (hash_list.length == 0) return;
 
-      const { subRoute, subUncertainty, subObserver, subError } = filterByTime(
+      const { subRoute, subUncertainty, subObserver, subError, subTime } = filterByTime(
         this.perDeviceRoute,
         this.perDeviceTime,
         this.perDeviceUncertainty,
@@ -211,6 +213,7 @@ export class MainPanel extends PureComponent<Props, IState> {
           subUncertainty,
           subObserver,
           subError,
+          subTime,
           0,
           devicesLocation,
           newcolors
@@ -226,6 +229,7 @@ export class MainPanel extends PureComponent<Props, IState> {
         subUncertainty,
         subObserver,
         subError,
+        subTime,
       }));
     }
 
@@ -234,13 +238,14 @@ export class MainPanel extends PureComponent<Props, IState> {
 
       if (!this.props.options.devicesLocation) return;
 
-      const { subRoute, subUncertainty, subObserver, subError, iter, colors } = this.state;
+      const { subRoute, subUncertainty, subObserver, subError, iter, colors, subTime } = this.state;
 
       this.radiusLayer = createObserverCircle(
         subRoute,
         subUncertainty,
         subObserver,
         subError,
+        subTime,
         iter,
         this.props.options.devicesLocation,
         colors
@@ -286,7 +291,7 @@ export class MainPanel extends PureComponent<Props, IState> {
     const { timepoint, colors, iter } = this.state;
     const { timebound, devicesLocation } = this.props.options;
 
-    const { subRoute, subUncertainty, subObserver, subError } = filterByTime(
+    const { subRoute, subUncertainty, subObserver, subError, subTime } = filterByTime(
       this.perDeviceRoute,
       this.perDeviceTime,
       this.perDeviceUncertainty,
@@ -308,6 +313,7 @@ export class MainPanel extends PureComponent<Props, IState> {
         subUncertainty,
         subObserver,
         subError,
+        subTime,
         iter,
         devicesLocation,
         newcolors
@@ -323,6 +329,7 @@ export class MainPanel extends PureComponent<Props, IState> {
       subUncertainty,
       subObserver,
       subError,
+      subTime,
     }));
   };
 

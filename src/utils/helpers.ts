@@ -149,6 +149,7 @@ export const filterByTime = (
   const subUncertainty: { [key: string]: number[] } = {};
   const subObserver: { [key: string]: Array<{ [key: string]: number }> } = {};
   const subError: { [key: string]: number[] } = {};
+  const subTime: { [key: string]: number[] } = {};
 
   hash_list.map((hash) => {
     if (routeTime[hash]) {
@@ -156,6 +157,7 @@ export const filterByTime = (
       subUncertainty[hash] = [];
       subObserver[hash] = [];
       subError[hash] = [];
+      subTime[hash] = [];
 
       for (let i = 0; i < routeTime[hash].length; i++) {
         if (routeTime[hash][i] >= timepoint - timebound && routeTime[hash][i] <= timepoint + timebound) {
@@ -163,6 +165,7 @@ export const filterByTime = (
           subUncertainty[hash].push(routeUncertainty[hash][i]);
           subObserver[hash].push(routeObserver[hash][i]);
           subError[hash].push(routeError[hash][i]);
+          subTime[hash].push(routeTime[hash][i]);
         }
       }
     }
@@ -182,7 +185,11 @@ export const filterByTime = (
     if (subError[k].length == 0) delete subError[k];
   });
 
-  return { subRoute, subUncertainty, subObserver, subError };
+  Object.keys(subTime).map((k) => {
+    if (subTime[k].length == 0) delete subTime[k];
+  });
+
+  return { subRoute, subUncertainty, subObserver, subError, subTime };
 };
 
 export const parseDeviceLocation = (geojson: GeoJSON) => {
@@ -201,6 +208,7 @@ export const createObserverCircle = (
   subUncertainty: { [key: string]: number[] },
   subObserver: { [key: string]: Array<{ [key: string]: number }> },
   subError: { [key: string]: number[] },
+  subTime: { [key: string]: number[] },
   iter: number,
   devicesLocation: DevicesLocation,
   colors: { [key: string]: string }
@@ -220,6 +228,15 @@ export const createObserverCircle = (
           stroke: new Stroke({
             color: colors[hash_id],
             width: 2,
+          }),
+          text: new Text({
+            stroke: new Stroke({
+              color: '#004966',
+              width: 1,
+            }),
+            font: '10px/1 sans-serif',
+            text: `${subTime[hash_id][iter] - subTime[hash_id][iter - 1]} (s)`,
+            offsetX: 30,
           }),
         }),
         new Style({
