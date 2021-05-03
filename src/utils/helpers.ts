@@ -104,13 +104,13 @@ export const processData = (data: SingleData[]) => {
       perDeviceTime[datum.hash_id].push(datum.timestamp);
       perDeviceUncertainty[datum.hash_id].push(datum.uncertainty || 0);
       perDeviceObserver[datum.hash_id].push(datum.devices || {});
-      perDeviceError[datum.hash_idh].push(datum.error || 0);
+      perDeviceError[datum.hash_id].push(datum.error || 0);
     } else {
       perDeviceRoute[datum.hash_id] = [[datum.longitude, datum.latitude]];
       perDeviceTime[datum.hash_id] = [datum.timestamp];
       perDeviceUncertainty[datum.hash_id] = [datum.uncertainty || 0];
       perDeviceObserver[datum.hash_id] = [datum.devices || {}];
-      perDeviceError[datum.hash_idh] = [datum.error || 0];
+      perDeviceError[datum.hash_id] = [datum.error || 0];
     }
   });
 
@@ -217,9 +217,16 @@ export const createObserverCircle = (
       new Style({
         stroke: new Stroke({ color: '#fff', width: 1 }),
         fill: new Fill({ color: '#fff' }),
+        text: new Text({
+          stroke: new Stroke({
+            color: '#b7b7b7',
+            width: 1,
+          }),
+          font: '10px/1 sans-serif',
+          text: `${subError[hash_id][iter].toFixed(3)}`,
+        }),
       })
     );
-    center.set('label', `${subError[hash_id][iter].toFixed(3)}`);
 
     radiusFeature.push(point, center);
   });

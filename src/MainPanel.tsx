@@ -121,6 +121,8 @@ export class MainPanel extends PureComponent<Props, IState> {
       domain: timeRange,
       timepoint: timeRange[0],
     }));
+
+    console.log('process data ', this.perDeviceError);
   }
 
   componentDidUpdate(prevProps: Props, prevState: IState) {
@@ -328,6 +330,7 @@ export class MainPanel extends PureComponent<Props, IState> {
     const { all_hashs, domain, timepoint, subRoute, iter, hash_list } = this.state;
     const { timezone } = this.props.options;
 
+    console.log('hash', hash_list);
     return (
       <>
         <div style={{ display: 'flex', marginTop: 30, marginBottom: 20 }}>

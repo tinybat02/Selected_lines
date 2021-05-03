@@ -93723,6 +93723,7 @@ function (_super) {
         timepoint: timeRange[0]
       });
     });
+    console.log('process data ', this.perDeviceError);
   };
 
   MainPanel.prototype.componentDidUpdate = function (prevProps, prevState) {
@@ -93856,6 +93857,7 @@ function (_super) {
         iter = _a.iter,
         hash_list = _a.hash_list;
     var timezone = this.props.options.timezone;
+    console.log('hash', hash_list);
     return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
       style: {
         display: 'flex',
@@ -94857,13 +94859,13 @@ var processData = function processData(data) {
       perDeviceTime[datum.hash_id].push(datum.timestamp);
       perDeviceUncertainty[datum.hash_id].push(datum.uncertainty || 0);
       perDeviceObserver[datum.hash_id].push(datum.devices || {});
-      perDeviceError[datum.hash_idh].push(datum.error || 0);
+      perDeviceError[datum.hash_id].push(datum.error || 0);
     } else {
       perDeviceRoute[datum.hash_id] = [[datum.longitude, datum.latitude]];
       perDeviceTime[datum.hash_id] = [datum.timestamp];
       perDeviceUncertainty[datum.hash_id] = [datum.uncertainty || 0];
       perDeviceObserver[datum.hash_id] = [datum.devices || {}];
-      perDeviceError[datum.hash_idh] = [datum.error || 0];
+      perDeviceError[datum.hash_id] = [datum.error || 0];
     }
   });
   return {
@@ -94957,9 +94959,16 @@ var createObserverCircle = function createObserverCircle(subRoute, subUncertaint
       }),
       fill: new ol_style__WEBPACK_IMPORTED_MODULE_6__["Fill"]({
         color: '#fff'
+      }),
+      text: new ol_style__WEBPACK_IMPORTED_MODULE_6__["Text"]({
+        stroke: new ol_style__WEBPACK_IMPORTED_MODULE_6__["Stroke"]({
+          color: '#b7b7b7',
+          width: 1
+        }),
+        font: '10px/1 sans-serif',
+        text: "" + subError[hash_id][iter].toFixed(3)
       })
     }));
-    center.set('label', "" + subError[hash_id][iter].toFixed(3));
     radiusFeature.push(point, center);
   });
   Object.keys(subObserver).map(function (hash_id) {
