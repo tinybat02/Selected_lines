@@ -93718,7 +93718,9 @@ function (_super) {
     this.perDeviceError = perDeviceError;
     this.setState(function (prevState) {
       return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])(Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, prevState), {
-        all_hashs: Object.keys(perDeviceTime),
+        all_hashs: Object.keys(perDeviceTime).sort(function (a, b) {
+          return perDeviceTime[b].length - perDeviceTime[a].length;
+        }),
         domain: timeRange,
         timepoint: timeRange[0]
       });
@@ -93752,7 +93754,9 @@ function (_super) {
       this.perDeviceError = perDeviceError;
       this.setState(function (prevState) {
         return Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])(Object(tslib__WEBPACK_IMPORTED_MODULE_0__["__assign"])({}, prevState), {
-          all_hashs: Object.keys(perDeviceTime_1),
+          all_hashs: Object.keys(perDeviceTime_1).sort(function (a, b) {
+            return perDeviceTime_1[b].length - perDeviceTime_1[a].length;
+          }),
           domain: timeRange_1,
           timepoint: timeRange_1[0]
         });

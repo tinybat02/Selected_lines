@@ -117,7 +117,7 @@ export class MainPanel extends PureComponent<Props, IState> {
 
     this.setState((prevState) => ({
       ...prevState,
-      all_hashs: Object.keys(perDeviceTime),
+      all_hashs: Object.keys(perDeviceTime).sort((a, b) => perDeviceTime[b].length - perDeviceTime[a].length),
       domain: timeRange,
       timepoint: timeRange[0],
     }));
@@ -151,7 +151,7 @@ export class MainPanel extends PureComponent<Props, IState> {
 
       this.setState((prevState) => ({
         ...prevState,
-        all_hashs: Object.keys(perDeviceTime),
+        all_hashs: Object.keys(perDeviceTime).sort((a, b) => perDeviceTime[b].length - perDeviceTime[a].length),
         domain: timeRange,
         timepoint: timeRange[0],
       }));
