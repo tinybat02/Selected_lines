@@ -234,7 +234,7 @@ export const createObserverCircle = (
               color: '#004966',
               width: 1,
             }),
-            font: '12px/1 sans-serif',
+            font: '14px/1 sans-serif',
             text: `${subTime[hash_id][iter] - subTime[hash_id][iter - 1]} (s)`,
             offsetX: 30,
           }),
@@ -272,7 +272,7 @@ export const createObserverCircle = (
             color: '#b7b7b7',
             width: 1,
           }),
-          font: '12px/1 sans-serif',
+          font: '14px/1 sans-serif',
           text: `${subError[hash_id][iter].toFixed(3)}`,
         }),
       })
@@ -311,7 +311,7 @@ export const createObserverCircle = (
             color: '#b7b7b7',
             width: 1,
           }),
-          font: '12px/1 sans-serif',
+          font: '14px/1 sans-serif',
           text: label,
         }),
       });
