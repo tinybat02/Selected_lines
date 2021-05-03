@@ -94943,7 +94943,7 @@ var createObserverCircle = function createObserverCircle(subRoute, subUncertaint
     Object.keys(subObserver[hash_id][iter]).map(function (device_id) {
       if (devicesLocation[device_id]) {
         var circle = new ol_Feature__WEBPACK_IMPORTED_MODULE_0__["default"](new ol_geom_Circle__WEBPACK_IMPORTED_MODULE_5__["default"](devicesLocation[device_id], subObserver[hash_id][iter][device_id]));
-        circle.set('label', "" + device_id);
+        circle.set('label', device_id + ":" + subObserver[hash_id][iter][device_id].toFixed(2));
         radiusFeature.push(circle);
       }
     });

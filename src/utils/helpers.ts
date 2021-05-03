@@ -214,7 +214,7 @@ export const createObserverCircle = (
     Object.keys(subObserver[hash_id][iter]).map((device_id) => {
       if (devicesLocation[device_id]) {
         const circle = new Feature(new Circle(devicesLocation[device_id], subObserver[hash_id][iter][device_id]));
-        circle.set('label', `${device_id}`);
+        circle.set('label', `${device_id}:${subObserver[hash_id][iter][device_id].toFixed(2)}`);
         radiusFeature.push(circle);
       }
     });
