@@ -202,12 +202,45 @@ export const createObserverCircle = (
   subObserver: { [key: string]: Array<{ [key: string]: number }> },
   subError: { [key: string]: number[] },
   iter: number,
-  devicesLocation: DevicesLocation
+  devicesLocation: DevicesLocation,
+  colors: { [key: string]: string }
 ) => {
   const radiusFeature: Feature[] = [];
   Object.keys(subRoute).map((hash_id) => {
+    if (iter > 0) {
+      const lineFeature = new Feature(
+        new LineString([subRoute[hash_id][iter - 1], subRoute[hash_id][iter]]).transform('EPSG:4326', 'EPSG:3857')
+      );
+      const dx = subRoute[hash_id][iter][0] - subRoute[hash_id][iter - 1][0];
+      const dy = subRoute[hash_id][iter][1] - subRoute[hash_id][iter - 1][1];
+      const rotation = Math.atan2(dy, dx);
+
+      lineFeature.setStyle([
+        new Style({
+          stroke: new Stroke({
+            color: colors[hash_id],
+            width: 2,
+          }),
+        }),
+        new Style({
+          geometry: new Point(subRoute[hash_id][iter]).transform('EPSG:4326', 'EPSG:3857'),
+          image: new RegularShape({
+            fill: new Fill({ color: colors[hash_id] }),
+            points: 3,
+            radius: 8,
+            rotateWithView: true,
+            rotation: -rotation,
+            angle: Math.PI / 2,
+          }),
+        }),
+      ]);
+
+      radiusFeature.push(lineFeature);
+    }
+
     const point = new Feature(new Circle(fromLonLat(subRoute[hash_id][iter]), subUncertainty[hash_id][iter]));
     const center = new Feature(new Circle(fromLonLat(subRoute[hash_id][iter]), 2));
+
     point.setStyle(
       new Style({
         stroke: new Stroke({ color: '#FFA040', width: 2 }),

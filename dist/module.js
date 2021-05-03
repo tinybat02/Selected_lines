@@ -93613,7 +93613,7 @@ function (_super) {
       // this.map.addLayer(this.lineLayer);
 
       if (devicesLocation) {
-        _this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute, subUncertainty, subObserver, subError, iter, devicesLocation);
+        _this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute, subUncertainty, subObserver, subError, iter, devicesLocation, newcolors);
 
         _this.map.addLayer(_this.radiusLayer);
       }
@@ -93723,7 +93723,6 @@ function (_super) {
         timepoint: timeRange[0]
       });
     });
-    console.log('process data ', this.perDeviceError);
   };
 
   MainPanel.prototype.componentDidUpdate = function (prevProps, prevState) {
@@ -93798,7 +93797,7 @@ function (_super) {
       // this.map.addLayer(this.lineLayer);
 
       if (devicesLocation) {
-        this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute_1, subUncertainty_1, subObserver_1, subError_1, 0, devicesLocation);
+        this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute_1, subUncertainty_1, subObserver_1, subError_1, 0, devicesLocation, newcolors_1);
         this.map.addLayer(this.radiusLayer);
       }
 
@@ -93822,8 +93821,9 @@ function (_super) {
           subUncertainty = _f.subUncertainty,
           subObserver = _f.subObserver,
           subError = _f.subError,
-          iter = _f.iter;
-      this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute, subUncertainty, subObserver, subError, iter, this.props.options.devicesLocation);
+          iter = _f.iter,
+          colors = _f.colors;
+      this.radiusLayer = Object(_utils_helpers__WEBPACK_IMPORTED_MODULE_11__["createObserverCircle"])(subRoute, subUncertainty, subObserver, subError, iter, this.props.options.devicesLocation, colors);
       this.map.addLayer(this.radiusLayer);
     }
 
@@ -93857,7 +93857,6 @@ function (_super) {
         iter = _a.iter,
         hash_list = _a.hash_list;
     var timezone = this.props.options.timezone;
-    console.log('hash', hash_list);
     return react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_1___default.a.Fragment, null, react__WEBPACK_IMPORTED_MODULE_1___default.a.createElement("div", {
       style: {
         display: 'flex',
@@ -94941,9 +94940,35 @@ var parseDeviceLocation = function parseDeviceLocation(geojson) {
   });
   return devicesLocation;
 };
-var createObserverCircle = function createObserverCircle(subRoute, subUncertainty, subObserver, subError, iter, devicesLocation) {
+var createObserverCircle = function createObserverCircle(subRoute, subUncertainty, subObserver, subError, iter, devicesLocation, colors) {
   var radiusFeature = [];
   Object.keys(subRoute).map(function (hash_id) {
+    if (iter > 0) {
+      var lineFeature = new ol_Feature__WEBPACK_IMPORTED_MODULE_0__["default"](new ol_geom_LineString__WEBPACK_IMPORTED_MODULE_4__["default"]([subRoute[hash_id][iter - 1], subRoute[hash_id][iter]]).transform('EPSG:4326', 'EPSG:3857'));
+      var dx = subRoute[hash_id][iter][0] - subRoute[hash_id][iter - 1][0];
+      var dy = subRoute[hash_id][iter][1] - subRoute[hash_id][iter - 1][1];
+      var rotation = Math.atan2(dy, dx);
+      lineFeature.setStyle([new ol_style__WEBPACK_IMPORTED_MODULE_6__["Style"]({
+        stroke: new ol_style__WEBPACK_IMPORTED_MODULE_6__["Stroke"]({
+          color: colors[hash_id],
+          width: 2
+        })
+      }), new ol_style__WEBPACK_IMPORTED_MODULE_6__["Style"]({
+        geometry: new ol_geom_Point__WEBPACK_IMPORTED_MODULE_1__["default"](subRoute[hash_id][iter]).transform('EPSG:4326', 'EPSG:3857'),
+        image: new ol_style__WEBPACK_IMPORTED_MODULE_6__["RegularShape"]({
+          fill: new ol_style__WEBPACK_IMPORTED_MODULE_6__["Fill"]({
+            color: colors[hash_id]
+          }),
+          points: 3,
+          radius: 8,
+          rotateWithView: true,
+          rotation: -rotation,
+          angle: Math.PI / 2
+        })
+      })]);
+      radiusFeature.push(lineFeature);
+    }
+
     var point = new ol_Feature__WEBPACK_IMPORTED_MODULE_0__["default"](new ol_geom_Circle__WEBPACK_IMPORTED_MODULE_5__["default"](Object(ol_proj__WEBPACK_IMPORTED_MODULE_7__["fromLonLat"])(subRoute[hash_id][iter]), subUncertainty[hash_id][iter]));
     var center = new ol_Feature__WEBPACK_IMPORTED_MODULE_0__["default"](new ol_geom_Circle__WEBPACK_IMPORTED_MODULE_5__["default"](Object(ol_proj__WEBPACK_IMPORTED_MODULE_7__["fromLonLat"])(subRoute[hash_id][iter]), 2));
     point.setStyle(new ol_style__WEBPACK_IMPORTED_MODULE_6__["Style"]({

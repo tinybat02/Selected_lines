@@ -121,8 +121,6 @@ export class MainPanel extends PureComponent<Props, IState> {
       domain: timeRange,
       timepoint: timeRange[0],
     }));
-
-    console.log('process data ', this.perDeviceError);
   }
 
   componentDidUpdate(prevProps: Props, prevState: IState) {
@@ -208,7 +206,15 @@ export class MainPanel extends PureComponent<Props, IState> {
       // this.map.addLayer(this.lineLayer);
 
       if (devicesLocation) {
-        this.radiusLayer = createObserverCircle(subRoute, subUncertainty, subObserver, subError, 0, devicesLocation);
+        this.radiusLayer = createObserverCircle(
+          subRoute,
+          subUncertainty,
+          subObserver,
+          subError,
+          0,
+          devicesLocation,
+          newcolors
+        );
         this.map.addLayer(this.radiusLayer);
       }
 
@@ -228,7 +234,7 @@ export class MainPanel extends PureComponent<Props, IState> {
 
       if (!this.props.options.devicesLocation) return;
 
-      const { subRoute, subUncertainty, subObserver, subError, iter } = this.state;
+      const { subRoute, subUncertainty, subObserver, subError, iter, colors } = this.state;
 
       this.radiusLayer = createObserverCircle(
         subRoute,
@@ -236,7 +242,8 @@ export class MainPanel extends PureComponent<Props, IState> {
         subObserver,
         subError,
         iter,
-        this.props.options.devicesLocation
+        this.props.options.devicesLocation,
+        colors
       );
       this.map.addLayer(this.radiusLayer);
     }
@@ -296,7 +303,15 @@ export class MainPanel extends PureComponent<Props, IState> {
     // this.map.addLayer(this.lineLayer);
 
     if (devicesLocation) {
-      this.radiusLayer = createObserverCircle(subRoute, subUncertainty, subObserver, subError, iter, devicesLocation);
+      this.radiusLayer = createObserverCircle(
+        subRoute,
+        subUncertainty,
+        subObserver,
+        subError,
+        iter,
+        devicesLocation,
+        newcolors
+      );
       this.map.addLayer(this.radiusLayer);
     }
 
@@ -330,7 +345,6 @@ export class MainPanel extends PureComponent<Props, IState> {
     const { all_hashs, domain, timepoint, subRoute, iter, hash_list } = this.state;
     const { timezone } = this.props.options;
 
-    console.log('hash', hash_list);
     return (
       <>
         <div style={{ display: 'flex', marginTop: 30, marginBottom: 20 }}>
