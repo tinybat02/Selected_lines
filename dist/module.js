@@ -94975,7 +94975,7 @@ var createObserverCircle = function createObserverCircle(subRoute, subUncertaint
             color: '#004966',
             width: 1
           }),
-          font: '10px/1 sans-serif',
+          font: '12px/1 sans-serif',
           text: subTime[hash_id][iter] - subTime[hash_id][iter - 1] + " (s)",
           offsetX: 30
         })
@@ -95016,7 +95016,7 @@ var createObserverCircle = function createObserverCircle(subRoute, subUncertaint
           color: '#b7b7b7',
           width: 1
         }),
-        font: '10px/1 sans-serif',
+        font: '12px/1 sans-serif',
         text: "" + subError[hash_id][iter].toFixed(3)
       })
     }));
@@ -95050,7 +95050,7 @@ var createObserverCircle = function createObserverCircle(subRoute, subUncertaint
             color: '#b7b7b7',
             width: 1
           }),
-          font: '10px/1 sans-serif',
+          font: '12px/1 sans-serif',
           text: label
         })
       });
